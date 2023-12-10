@@ -22,4 +22,7 @@ test-args = [
 test-success-exit-code = 33         # (0x10 << 1) | 1
 test-timeout = 300 # we don't want to ever be stuck in an infinite loop FOREVER
 
+[[test]]
+name = "should_panic"
+harness = false
 

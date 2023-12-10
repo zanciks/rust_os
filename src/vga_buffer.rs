@@ -1,7 +1,7 @@
-use volatile::Volatile; // lets us avoid unwanted optimizations
 use core::fmt; // to allow for normal writing macros
 use lazy_static::lazy_static; // lazy static dependency
-use spin::Mutex; // used to make the writer mutable static
+use spin::Mutex;
+use volatile::Volatile; // lets us avoid unwanted optimizations // used to make the writer mutable static
 
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
@@ -78,7 +78,8 @@ impl Writer {
         match byte {
             b'\n' => self.new_line(), // using \n is an accepted way to write a new line
             byte => {
-                if self.column_position >= BUFFER_WIDTH { // wrap-around text to new line
+                if self.column_position >= BUFFER_WIDTH {
+                    // wrap-around text to new line
                     self.new_line();
                 }
 
@@ -103,7 +104,6 @@ impl Writer {
                 // not part of printable ASCII range
                 _ => self.write_byte(0xfe),
             }
-
         }
     }
     fn new_line(&mut self) {
@@ -157,4 +157,3 @@ macro_rules! println {
     () => ($crate::print!("\n"));
     ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
 }
-

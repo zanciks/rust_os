@@ -6,6 +6,10 @@
 #![no_std]
 // we cant have a main function. instead, we define _start()
 #![no_main]
+// custom tests
+#![feature(custom_test_frameworks)]
+#![test_runner(crate::test_runner)]
+#![reexport_test_harness_main = "test_main"]
 // we need to be able to deal with panics
 use core::panic::PanicInfo;
 
@@ -18,9 +22,10 @@ mod vga_buffer;
 // we should never return from this function, so we a "returning" the never type
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
-    println!("Hello World!");
-    println!("This text is on a new line!");
-    print!("This is a number {}", 724);
+    println!("Hello World{}", "!");
+
+    #[cfg(test)]
+    test_main();
 
     loop {}
 }
@@ -30,4 +35,19 @@ pub extern "C" fn _start() -> ! {
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
     loop {}
+}
+
+#[cfg(test)]
+fn test_runner(tests: &[&dyn Fn()]) {
+    println!("Running {} tests", tests.len());
+    for test in tests {
+        test();
+    }
+}
+
+#[test_case]
+fn trivial_assertion() {
+    print!("trivial assertion... ");
+    assert_eq!(1, 1);
+    println!("[ok]");
 }

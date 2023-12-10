@@ -18,15 +18,16 @@ mod vga_buffer;
 // we should never return from this function, so we a "returning" the never type
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
-    use core::fmt::Write;
-    vga_buffer::WRITER.lock().write_str("Hello again").unwrap();
-    write!(vga_buffer::WRITER.lock(), ", some numbers: {} {}", 42, 1.337).unwrap();
+    println!("Hello World!");
+    println!("This text is on a new line!");
+    print!("This is a number {}", 724);
 
     loop {}
 }
 
 // again, we return the never type, as when we panic, we don't return.
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
+fn panic(info: &PanicInfo) -> ! {
+    println!("{}", info);
     loop {}
 }

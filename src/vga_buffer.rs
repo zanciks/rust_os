@@ -1,8 +1,19 @@
 use volatile::Volatile; // lets us avoid unwanted optimizations
 use core::fmt; // to allow for normal writing macros
+use lazy_static::lazy_static; // lazy static dependency
+use spin::Mutex; // used to make the writer mutable static
 
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
+
+// global writer, which lets us write from anywhere! Must be a lazy static to work
+lazy_static! {
+    pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
+        column_position: 0,
+        color_code: ColorCode::new(Color::Yellow, Color::Black),
+        buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
+    });
+}
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -125,18 +136,4 @@ impl fmt::Write for Writer {
         self.write_string(s);
         Ok(())
     }
-}
-
-// TEMPORARY FUNCTION
-pub fn print_something() {
-    let mut writer = Writer {
-        column_position: 0,
-        color_code: ColorCode::new(Color::Yellow, Color::Black),
-        buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
-    };
-
-    writer.write_byte(b'H');
-    writer.write_string("ello ");
-    writer.write_string("World!");
-    writer.write_string("\nThis is me attempting a new line I guess!")
 }
